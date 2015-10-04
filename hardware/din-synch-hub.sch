@@ -15951,14 +15951,14 @@ SOIC-4:
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,50.8,63.5,U$1,VDD,VCC,,,"/>
-<approved hash="104,1,91.44,63.5,U$1,VSS,GND,,,"/>
-<approved hash="104,1,182.88,114.3,IC1P,VSS,GND,,,"/>
-<approved hash="104,1,182.88,129.54,IC1P,VDD,VCC,,,"/>
-<approved hash="104,1,182.88,30.48,IC2P,VSS,GND,,,"/>
-<approved hash="104,1,182.88,45.72,IC2P,VDD,VCC,,,"/>
-<approved hash="104,1,114.3,66.04,J1,VDD,VCC,,,"/>
-<approved hash="104,1,114.3,63.5,J1,VSS(GND),GND,,,"/>
+<approved hash="104,1,50.8,63.5,IC2,VDD,VCC,,,"/>
+<approved hash="104,1,91.44,63.5,IC2,VSS,GND,,,"/>
+<approved hash="104,1,182.88,114.3,IC3P,VSS,GND,,,"/>
+<approved hash="104,1,182.88,129.54,IC3P,VDD,VCC,,,"/>
+<approved hash="104,1,182.88,30.48,IC6P,VSS,GND,,,"/>
+<approved hash="104,1,182.88,45.72,IC6P,VDD,VCC,,,"/>
+<approved hash="104,1,114.3,66.04,ICSP,VDD,VCC,,,"/>
+<approved hash="104,1,114.3,63.5,ICSP,VSS(GND),GND,,,"/>
 <approved hash="113,1,197.251,128.27,C1,,,,,"/>
 <approved hash="113,1,203.2,122.915,R1,,,,,"/>
 <approved hash="113,1,203.2,110.215,R2,,,,,"/>
@@ -15976,7 +15976,7 @@ SOIC-4:
 <approved hash="113,1,38.1,112.755,R13,,,,,"/>
 <approved hash="113,1,83.82,110.215,R14,,,,,"/>
 <approved hash="113,1,83.82,107.675,R15,,,,,"/>
-<approved hash="113,1,123,62.23,J1,,,,,"/>
+<approved hash="113,1,123,62.23,ICSP,,,,,"/>
 <approved hash="113,1,69.85,72.7913,C3,,,,,"/>
 <approved hash="113,1,32.0252,38.1,R16,,,,,"/>
 <approved hash="113,1,25.4,48.6495,S1,,,,,"/>
@@ -15984,7 +15984,7 @@ SOIC-4:
 <approved hash="113,1,49.8052,25.4,R17,,,,,"/>
 <approved hash="113,1,61.2817,13.97,LED2,,,,,"/>
 <approved hash="113,1,59.9652,25.4,R18,,,,,"/>
-<approved hash="113,1,27.94,-15.24,G1,,,,,"/>
+<approved hash="113,1,27.94,-15.24,IC5,,,,,"/>
 <approved hash="113,1,9.92293,-26.8012,JP1,,,,,"/>
 <approved hash="113,1,9.92293,-6.48123,JP2,,,,,"/>
 <approved hash="113,1,46.5887,-24.13,C4,,,,,"/>
