@@ -24,24 +24,44 @@ typedef unsigned char byte;
 // define the I/O pins. Note that 
 // PORTA.5 is the UART RX pin
 // PORTA.3 is left as VPP only
-#define P_LED1		porta.4
-#define P_LED2		porta.2
-#define P_RUN		porta.0
-#define P_CLK		porta.1
+#define P_LED1		lata.4
+#define P_LED2		lata.2
+#define P_RUN		lata.0
+#define P_CLK		lata.1
 
 
-// how long the output pulses in terms of main loop cycles
-// A value of 100 gives ~2ms output pulse duration
-#define OUTPUT_HIGH_TIME 100
+// Timer settings
+volatile byte timerTicked = 0;		// Timer ticked flag (tick once per ms)
+#define TIMER_0_INIT_SCALAR		5	// Timer 0 is an 8 bit timer counting at 250kHz
+
+#define CLOCK_HIGH_TIME 		5 // milliseconds
+#define MIDILED_HIGH_TIME 		5 // milliseconds
+#define BEATLED_HIGH_TIME 		10 // milliseconds
 
 volatile byte bRunning = 0;
-volatile byte bSynchCount = 0;
+volatile byte bBeatCount = 0;
+volatile byte bClockSignalCount = 0;
+volatile byte bMidiLEDCount = 0;
+volatile byte bBeatLEDCount = 0;
+volatile unsigned millisSinceLastTick = 0;
 
 ////////////////////////////////////////////////////////////
 // INTERRUPT HANDLER CALLED WHEN CHARACTER RECEIVED AT 
 // SERIAL PORT
 void interrupt( void )
 {
+	// TIMER 0 ROLLOVER (PER MS)
+	if(intcon.2)
+	{
+		tmr0 = TIMER_0_INIT_SCALAR;
+		++millisSinceLastTick;
+		if(bClockSignalCount) {
+			if(!--bClockSignalCount)
+				P_CLK = 0;
+		}
+		timerTicked = 1;
+		intcon.2 = 0;
+	}
 	// check if this is serial rx interrupt
 	if(pir1.5)
 	{
@@ -51,13 +71,27 @@ void interrupt( void )
 				
 		switch(b)
 		{
-			case 0xf8:
+			case 0xf8:	// CLOCK
 				P_CLK = 1;
-				bSynchCount = OUTPUT_HIGH_TIME;
+				//if(millisSinceLastTick) { 
+				//	bClockSignalCount = millisSinceLastTick/2;
+				//}
+				//else {
+					bClockSignalCount = CLOCK_HIGH_TIME;
+				//}
+				tmr0 = TIMER_0_INIT_SCALAR;
+				millisSinceLastTick = 0;
+				bMidiLEDCount = MIDILED_HIGH_TIME;
+				if(++bBeatCount == 24) {
+					bBeatCount = 0;
+					bBeatLEDCount = BEATLED_HIGH_TIME;
+				}
 				break;
-			case 0xfa: // START
+			case 0xfa: // START 
 			case 0xfb: // CONTINUE
 				P_RUN = 1;
+				bBeatCount = 0;
+				bBeatLEDCount = BEATLED_HIGH_TIME;
 				bRunning = 1;
 				break;
 			case 0xfc: // STOP
@@ -108,8 +142,22 @@ void main()
 	osccon = 0b01110010;
 	
 	// enable serial receive interrupt
-	intcon = 0b11000000;
+	intcon.7 = 1; 
+	intcon.6 = 1; 
 	pie1.5 = 1;
+	
+	// Configure timer 0 (controls systemticks)
+	// 	timer 0 runs at 4MHz
+	// 	prescaled 1/16 = 250kHz
+	// 	rollover at 250 = 1kHz
+	// 	1ms per rollover	
+	option_reg.5 = 0; // timer 0 driven from instruction cycle clock
+	option_reg.3 = 0; // timer 0 is prescaled
+	option_reg.2 = 0; // }
+	option_reg.1 = 1; // } 1/16 prescaler
+	option_reg.0 = 1; // }
+	intcon.5 = 1; 	  // enabled timer 0 interrrupt
+	intcon.2 = 0;     // clear interrupt fired flag	
 
 	// configure io
 	trisa = 0b00100000;              	
@@ -131,17 +179,29 @@ void main()
 	init_usart();
 
 	// loop forever		
-	unsigned long count = 0;
 	for(;;)
 	{
-		P_LED1 = !!(bSynchCount);
-		P_LED2 = !!(bRunning);
-		++count;
-			
-		if(bSynchCount)
-		{
-			if(!--bSynchCount) 
-				P_CLK = 0;
+		if(timerTicked) {
+			timerTicked = 0;
+
+//			if(bClockSignalCount)
+			//{
+				//if(!--bClockSignalCount) 
+					//P_CLK = 0;
+			//}
+
+			P_LED1 = !!bMidiLEDCount;
+			if(bRunning) {
+				P_LED2= !!bBeatLEDCount;
+			}
+			else {
+				P_LED2= 0;
+			}
+		
+			if(bMidiLEDCount)
+				--bMidiLEDCount;
+			if(bBeatLEDCount)
+				--bBeatLEDCount;
 		}
 	}
 }
