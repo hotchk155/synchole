@@ -1,24 +1,26 @@
 ////////////////////////////////////////////////////////////
 //
-// DIN SYNCH HUB
+// SYNCHOLE DIN SYNCH24 HUB
 //
 // Code for PIC12F1822
+//
 // Compiled with SourceBoost C
 //
 // hotchk155/2015
 //
 // Firmware version 
-// 1.00 
+// 1 19Nov15 Initial Version
 //
 ////////////////////////////////////////////////////////////
-
 #include <system.h>
 #include <memory.h>
 
-// 8MHz internal oscillator block, reset disabled
-#pragma DATA _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _MCLRE_OFF &_CLKOUTEN_OFF
+#define FIRMWARE_VERSION 1
+
+// configuration words: 16MHz internal oscillator block, reset disabled
+#pragma DATA _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _MCLRE_OFF & _CLKOUTEN_OFF
 #pragma DATA _CONFIG2, _WRT_OFF & _PLLEN_OFF & _STVREN_ON & _BORV_19 & _LVP_OFF
-#pragma CLOCK_FREQ 8000000
+#pragma CLOCK_FREQ 16000000
 typedef unsigned char byte;
 
 // define the I/O pins. Note that 
@@ -29,40 +31,65 @@ typedef unsigned char byte;
 #define P_RUN		lata.0
 #define P_CLK		lata.1
 
-
 // Timer settings
 volatile byte timerTicked = 0;		// Timer ticked flag (tick once per ms)
 #define TIMER_0_INIT_SCALAR		5	// Timer 0 is an 8 bit timer counting at 250kHz
-
-#define CLOCK_HIGH_TIME 		5 // milliseconds
 #define MIDILED_HIGH_TIME 		5 // milliseconds
 #define BEATLED_HIGH_TIME 		10 // milliseconds
 
-volatile byte bRunning = 0;
-volatile byte bBeatCount = 0;
-volatile byte bClockSignalCount = 0;
-volatile byte bMidiLEDCount = 0;
-volatile byte bBeatLEDCount = 0;
-volatile unsigned millisSinceLastTick = 0;
+// The pulse width is supposed to be at 50% duty cycle (i.e. half the 
+// clock pulse period. However if we don't have a previous MIDI clock
+// tick we don't know the period, so we'll use a default pulse width
+// of 5 milliseconds
+#define DEFAULT_CLOCK_LENGTH_USECS 5000
+
+volatile byte bRunning = 0;				// clock running flag
+volatile byte bBeatCount = 0;			// beat count (used to flash beat LED)	
+volatile byte bMidiLEDCount = 0;		// ms before MIDI activity LED goes off
+volatile byte bBeatLEDCount = 0;		// ms before beat LED goes off
 
 ////////////////////////////////////////////////////////////
-// INTERRUPT HANDLER CALLED WHEN CHARACTER RECEIVED AT 
-// SERIAL PORT
+// INTERRUPT HANDLER 
 void interrupt( void )
 {
-	// TIMER 0 ROLLOVER (PER MS)
+	unsigned int usecsSinceLastClock;
+	unsigned int usecsPulseLength;
+
+	// TIMER0 OVERFLOW
+	// Timer 0 overflow is used to 
+	// create a once per millisecond
+	// signal for blinking LEDs etc
 	if(intcon.2)
 	{
 		tmr0 = TIMER_0_INIT_SCALAR;
-		++millisSinceLastTick;
-		if(bClockSignalCount) {
-			if(!--bClockSignalCount)
-				P_CLK = 0;
-		}
 		timerTicked = 1;
 		intcon.2 = 0;
 	}
-	// check if this is serial rx interrupt
+	
+	// COMPARE INTERRUPT
+	// This we configure this interrupt to fire when Timer1 matches CCPR1H:CCPR1L.
+	// This is our signal to end the output clock pulse (at 50% duty)
+	if(pir1.2) 
+	{	
+		// drive output clock low
+		P_CLK = 0;
+		pir1.2 = 0;
+	}
+	
+	// TIMER1 OVERFLOW
+	// If Timer1 overflows this means that 
+	// we will give up timing between MIDI
+	// clock messages (very slow BPM) and 
+	// will instead revert to default clock
+	// pulse width
+	if(pir1.0)
+	{
+		// drive the output clock low
+		t1con.0 = 0; // stop the timer
+		pir1.0 = 0;
+	}
+		
+	// SERIAL PORT RECEIVE
 	if(pir1.5)
 	{
 
@@ -71,34 +98,63 @@ void interrupt( void )
 				
 		switch(b)
 		{
-			case 0xf8:	// CLOCK
-				P_CLK = 1;
-				//if(millisSinceLastTick) { 
-				//	bClockSignalCount = millisSinceLastTick/2;
-				//}
-				//else {
-					bClockSignalCount = CLOCK_HIGH_TIME;
-				//}
-				tmr0 = TIMER_0_INIT_SCALAR;
-				millisSinceLastTick = 0;
-				bMidiLEDCount = MIDILED_HIGH_TIME;
+			/////////////////////////////////////////////////////////////
+			// MIDI CLOCK
+			case 0xf8:	
+				P_CLK = 1;	// send clock line high
+
+				// the clock was not started, or it overflowed, so 
+				// we need to use a default pulse length
+				if(!t1con.0) {
+					usecsPulseLength = DEFAULT_CLOCK_LENGTH_USECS;
+				} else {
+					t1con.0 = 0; 
+					// capture timer 1 value (microseconds since the last
+					// MIDI tick)
+					usecsSinceLastClock = (((unsigned int)tmr1h<<8)|tmr1l);
+					
+					// divide by 2 to get pulse width at 50% duty
+					usecsPulseLength = usecsSinceLastClock / 2;
+				}
+										
+				// Schedule the end of the clock pulse
+				ccpr1h = usecsPulseLength>>8;
+				ccpr1l = (byte)usecsPulseLength;
+				
+				// reset the timer 1 and start it
+				tmr1l = 0;
+				tmr1h = 0;	
+				t1con.0 = 1; 
+
+				// Ping the beat LED every 24 pulses
 				if(++bBeatCount == 24) {
 					bBeatCount = 0;
 					bBeatLEDCount = BEATLED_HIGH_TIME;
 				}
+				
+				// Indicate MIDI activity
+				bMidiLEDCount = MIDILED_HIGH_TIME;
 				break;
-			case 0xfa: // START 
-			case 0xfb: // CONTINUE
+
+			/////////////////////////////////////////////////////////////
+			// MIDI CLOCK START / CONTINUE
+			case 0xfa: // start
+			case 0xfb: // continue
 				P_RUN = 1;
 				bBeatCount = 0;
-				bBeatLEDCount = BEATLED_HIGH_TIME;
 				bRunning = 1;
+				// ping the beat LED for the first beat
+				bBeatLEDCount = BEATLED_HIGH_TIME;
 				break;
-			case 0xfc: // STOP
+
+			/////////////////////////////////////////////////////////////
+			// MIDI CLOCK STOP
+			case 0xfc: 
 				P_RUN = 0;
 				bRunning = 0;
 				break;
-		}				
+		}	
+		pir1.5 = 0;			
 	}
 }
 
@@ -110,7 +166,7 @@ void init_usart()
 	pir1.5 = 0;		//RCIF
 	
 	pie1.1 = 0;		//TXIE 		no interrupts
-	pie1.5 = 1;		//RCIE 		interrupt on receive
+	pie1.5 = 1;		//RCIE 		enable
 	
 	baudcon.4 = 0;	// SCKP		synchronous bit polarity 
 	baudcon.3 = 1;	// BRG16	enable 16 bit brg
@@ -118,7 +174,7 @@ void init_usart()
 	baudcon.0 = 0;	// ABDEN	auto baud detect
 		
 	txsta.6 = 0;	// TX9		8 bit transmission
-	txsta.5 = 0;	// TXEN		transmit enable
+	txsta.5 = 0;	// TXEN		transmit disable
 	txsta.4 = 0;	// SYNC		async mode
 	txsta.3 = 0;	// SEDNB	break character
 	txsta.2 = 0;	// BRGH		high baudrate 
@@ -130,21 +186,27 @@ void init_usart()
 	rcsta.4 = 1;	// CREN 	continuous receive enable
 		
 	spbrgh = 0;		// brg high byte
-	spbrg = 15;		// brg low byte (31250)	
-	
+	spbrg = 31;		// brg low byte (31250)		
 }
 
 ////////////////////////////////////////////////////////////
 // ENTRY POINT
 void main()
 { 
-	// osc control / 8MHz / internal
-	osccon = 0b01110010;
-	
+	// osc control / 16MHz / internal
+	osccon = 0b01111010;
+		
+	// configure io
+	trisa = 0b00100000;              	
+	ansela = 0b00000000;
+	porta=0;
+
+	apfcon.7=1; // RX on RA5
+	apfcon.2=1;	// TX on RA4
+
 	// enable serial receive interrupt
-	intcon.7 = 1; 
-	intcon.6 = 1; 
-	pie1.5 = 1;
+	intcon.7 = 1; //global interrupt enable
+	intcon.6 = 1; // peripheral interrupt enable
 	
 	// Configure timer 0 (controls systemticks)
 	// 	timer 0 runs at 4MHz
@@ -159,21 +221,34 @@ void main()
 	intcon.5 = 1; 	  // enabled timer 0 interrrupt
 	intcon.2 = 0;     // clear interrupt fired flag	
 
-	// configure io
-	trisa = 0b00100000;              	
-	ansela = 0b00000000;
-	porta=0;
+	// configure Timer 1 (controls clock pulses)
+	// to count at 1MHz and interrupt on overflow
+	t1con.7 = 0; // }
+	t1con.6 = 0; // } instruction clock source
+	t1con.5 = 1; // }
+	t1con.4 = 0; // } prescaler 1:4
+	t1con.3 = 0; // 0 timer1 osc circuit disabled
+	t1con.2 = 0; // t1 synch off
+	t1con.1 = 0; // reserved	
+	tmr1l = 0;	 // reset timer
+	tmr1h = 0;
+	pir1.0 = 0;  // clear timer interrupt flag
+	pie1.0 = 1;  // Enable timer overflow interrupt
+	t1con.0 = 1; // Timer1 starts disabled
 
-	apfcon.7=1; // RX on RA5
-	apfcon.2=1;	// TX on RA4
-
-	// startup flash
+	// Configure Compare module 1 to interrupt
+	// on a match between tmr1h:tmr1l and ccpr1h:ccpr1l
+	ccp1con.3 = 1; //	}
+	ccp1con.2 = 0; //	} Generate software interrupt
+	ccp1con.1 = 1; //	} from capture/compare module 1
+	ccp1con.0 = 0; //	} when timer1 matches CCPR1H:CCPR1L
+	pie1.2 = 1;    // enable interrupt 
+			
+	// Flash MIDI activity LED on startup
 	P_LED1=1; delay_ms(200);
 	P_LED1=0; delay_ms(200);
 	P_LED1=1; delay_ms(200);
-	P_LED1=0; delay_ms(200);
-	P_LED1=1; delay_ms(200);
-	P_LED1=0; delay_ms(200);
+	P_LED1=0; 
 
 	// initialise USART
 	init_usart();
@@ -181,23 +256,18 @@ void main()
 	// loop forever		
 	for(;;)
 	{
+		// once per ms this flag is set...
 		if(timerTicked) {
 			timerTicked = 0;
 
-//			if(bClockSignalCount)
-			//{
-				//if(!--bClockSignalCount) 
-					//P_CLK = 0;
-			//}
-
+			// refresh LEDs
 			P_LED1 = !!bMidiLEDCount;
 			if(bRunning) {
 				P_LED2= !!bBeatLEDCount;
 			}
 			else {
 				P_LED2= 0;
-			}
-		
+			}		
 			if(bMidiLEDCount)
 				--bMidiLEDCount;
 			if(bBeatLEDCount)
