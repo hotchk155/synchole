@@ -10,12 +10,13 @@
 //
 // Firmware version 
 // 1 19Nov15 Initial Version
+// 2 12Dec15 New PCB - output pins switched
 //
 ////////////////////////////////////////////////////////////
 #include <system.h>
 #include <memory.h>
 
-#define FIRMWARE_VERSION 1
+#define FIRMWARE_VERSION 2
 
 // configuration words: 16MHz internal oscillator block, reset disabled
 #pragma DATA _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _MCLRE_OFF & _CLKOUTEN_OFF
@@ -28,8 +29,8 @@ typedef unsigned char byte;
 // PORTA.3 is left as VPP only
 #define P_LED1		lata.4
 #define P_LED2		lata.2
-#define P_RUN		lata.0
-#define P_CLK		lata.1
+#define P_RUN		lata.1
+#define P_CLK		lata.0
 
 // Timer settings
 volatile byte timerTicked = 0;		// Timer ticked flag (tick once per ms)
