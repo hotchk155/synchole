@@ -589,6 +589,15 @@ Based on the following sources:
 <smd name="5" x="5.08" y="-10.16" dx="3.048" dy="5.08" layer="16" roundness="20"/>
 <wire x1="-9.525" y1="-13.335" x2="9.525" y2="-13.335" width="0.127" layer="21"/>
 </package>
+<package name="PWR_SOCKET_2_1MM">
+<circle x="0" y="0" radius="5.4" width="0.127" layer="21"/>
+<pad name="BARREL" x="0" y="4.2" drill="3" diameter="5"/>
+<pad name="NC" x="-4.2" y="0" drill="3" diameter="5"/>
+<pad name="PIN" x="3.4" y="-0.7" drill="3" diameter="5"/>
+<circle x="0" y="0" radius="3.7" width="0.127" layer="21"/>
+<circle x="0" y="0" radius="2.25" width="0.127" layer="21"/>
+<text x="-5.08" y="7.62" size="1.778" layer="21">&gt;NAME</text>
+</package>
 </packages>
 <symbols>
 <symbol name="5P">
@@ -626,6 +635,26 @@ Based on the following sources:
 <pin name="4" x="12.7" y="-2.54" visible="off" direction="pas" swaplevel="2" rot="R180"/>
 <pin name="5" x="-12.7" y="-2.54" visible="off" direction="pas" swaplevel="2"/>
 </symbol>
+<symbol name="PWR_SOCKET">
+<pin name="PIN" x="12.7" y="5.08" length="middle" rot="R180"/>
+<pin name="NC" x="12.7" y="2.54" length="middle" rot="R180"/>
+<pin name="BARREL" x="12.7" y="0" length="middle" rot="R180"/>
+<wire x1="7.62" y1="0" x2="0" y2="0" width="0.254" layer="94"/>
+<wire x1="0" y1="0" x2="-1.016" y2="1.016" width="0.254" layer="94"/>
+<wire x1="-1.016" y1="1.016" x2="-2.032" y2="0" width="0.254" layer="94"/>
+<wire x1="7.62" y1="2.54" x2="2.54" y2="2.54" width="0.254" layer="94"/>
+<wire x1="2.54" y1="2.54" x2="2.54" y2="0.254" width="0.254" layer="94"/>
+<wire x1="2.54" y1="0.254" x2="3.048" y2="0.762" width="0.254" layer="94"/>
+<wire x1="2.54" y1="0.254" x2="2.032" y2="0.762" width="0.254" layer="94"/>
+<wire x1="7.62" y1="5.08" x2="2.54" y2="5.08" width="0.254" layer="94"/>
+<wire x1="2.54" y1="5.08" x2="2.54" y2="5.588" width="0.254" layer="94"/>
+<wire x1="2.54" y1="5.588" x2="0" y2="5.588" width="0.254" layer="94"/>
+<wire x1="0" y1="5.588" x2="0" y2="4.572" width="0.254" layer="94"/>
+<wire x1="0" y1="4.572" x2="2.54" y2="4.572" width="0.254" layer="94"/>
+<wire x1="2.54" y1="4.572" x2="2.54" y2="5.08" width="0.254" layer="94"/>
+<wire x1="0" y1="4.572" x2="-0.508" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-0.508" y1="5.08" x2="0" y2="5.588" width="0.254" layer="94"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="DIN5PIN" prefix="X">
@@ -642,6 +671,23 @@ Based on the following sources:
 <connect gate="G$1" pin="3" pad="3"/>
 <connect gate="G$1" pin="4" pad="4"/>
 <connect gate="G$1" pin="5" pad="5"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="PWR_SOCKET_2_1MM">
+<gates>
+<gate name="G$1" symbol="PWR_SOCKET" x="-7.62" y="-2.54"/>
+</gates>
+<devices>
+<device name="" package="PWR_SOCKET_2_1MM">
+<connects>
+<connect gate="G$1" pin="BARREL" pad="BARREL"/>
+<connect gate="G$1" pin="NC" pad="NC"/>
+<connect gate="G$1" pin="PIN" pad="PIN"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -15147,56 +15193,6 @@ SOIC-4:
 </deviceset>
 </devicesets>
 </library>
-<library name="pinhead">
-<description>&lt;b&gt;Pin Header Connectors&lt;/b&gt;&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="1X01">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
-<wire x1="-0.635" y1="1.27" x2="0.635" y2="1.27" width="0.1524" layer="21"/>
-<wire x1="0.635" y1="1.27" x2="1.27" y2="0.635" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="0.635" x2="1.27" y2="-0.635" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="-0.635" x2="0.635" y2="-1.27" width="0.1524" layer="21"/>
-<wire x1="-1.27" y1="0.635" x2="-1.27" y2="-0.635" width="0.1524" layer="21"/>
-<wire x1="-0.635" y1="1.27" x2="-1.27" y2="0.635" width="0.1524" layer="21"/>
-<wire x1="-1.27" y1="-0.635" x2="-0.635" y2="-1.27" width="0.1524" layer="21"/>
-<wire x1="0.635" y1="-1.27" x2="-0.635" y2="-1.27" width="0.1524" layer="21"/>
-<pad name="1" x="0" y="0" drill="1.016" shape="octagon"/>
-<text x="-1.3462" y="1.8288" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<text x="-1.27" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-0.254" y1="-0.254" x2="0.254" y2="0.254" layer="51"/>
-</package>
-</packages>
-<symbols>
-<symbol name="PINHD1">
-<wire x1="-6.35" y1="-2.54" x2="1.27" y2="-2.54" width="0.4064" layer="94"/>
-<wire x1="1.27" y1="-2.54" x2="1.27" y2="2.54" width="0.4064" layer="94"/>
-<wire x1="1.27" y1="2.54" x2="-6.35" y2="2.54" width="0.4064" layer="94"/>
-<wire x1="-6.35" y1="2.54" x2="-6.35" y2="-2.54" width="0.4064" layer="94"/>
-<text x="-6.35" y="3.175" size="1.778" layer="95">&gt;NAME</text>
-<text x="-6.35" y="-5.08" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="1" x="-2.54" y="0" visible="pad" length="short" direction="pas" function="dot"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="PINHD-1X1" prefix="JP" uservalue="yes">
-<description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
-<gates>
-<gate name="G$1" symbol="PINHD1" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="1X01">
-<connects>
-<connect gate="G$1" pin="1" pad="1"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 </libraries>
 <attributes>
 </attributes>
@@ -15246,14 +15242,13 @@ SOIC-4:
 <part name="R18" library="rcl" deviceset="R-EU_" device="R0805"/>
 <part name="IC4" library="burr-brown" deviceset="REG1117" device=""/>
 <part name="IC5" library="microbuilder" deviceset="BRIDGERECTIFIER" device=""/>
-<part name="JP1" library="pinhead" deviceset="PINHD-1X1" device=""/>
-<part name="JP2" library="pinhead" deviceset="PINHD-1X1" device=""/>
 <part name="C4" library="rcl" deviceset="C-EU" device="C0805"/>
 <part name="C7" library="rcl" deviceset="C-EU" device="C0805"/>
 <part name="C3" library="rcl" deviceset="CPOL-EU" device="E2,5-6E"/>
 <part name="C6" library="rcl" deviceset="CPOL-EU" device="E2,5-6E"/>
 <part name="R19" library="rcl" deviceset="R-EU_" device="R0805"/>
 <part name="LED3" library="led" deviceset="LED" device="3MM"/>
+<part name="U$1" library="jason_eagle6" deviceset="PWR_SOCKET_2_1MM" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -15305,20 +15300,19 @@ SOIC-4:
 <instance part="C1" gate="G$1" x="68.58" y="71.12" rot="R90"/>
 <instance part="R4" gate="G$1" x="33.02" y="38.1" rot="R90"/>
 <instance part="S1" gate="1" x="25.4" y="50.8" rot="R90"/>
-<instance part="LED1" gate="G$1" x="50.8" y="15.24"/>
-<instance part="R17" gate="G$1" x="50.8" y="25.4" rot="R90"/>
-<instance part="LED2" gate="G$1" x="60.96" y="15.24"/>
-<instance part="R18" gate="G$1" x="60.96" y="25.4" rot="R90"/>
+<instance part="LED1" gate="G$1" x="50.8" y="22.86"/>
+<instance part="R17" gate="G$1" x="50.8" y="10.16" rot="R90"/>
+<instance part="LED2" gate="G$1" x="60.96" y="22.86"/>
+<instance part="R18" gate="G$1" x="60.96" y="10.16" rot="R90"/>
 <instance part="IC4" gate="G$1" x="63.5" y="-15.24"/>
 <instance part="IC5" gate="G$1" x="27.94" y="-15.24"/>
-<instance part="JP1" gate="G$1" x="7.62" y="-25.4" rot="R180"/>
-<instance part="JP2" gate="G$1" x="7.62" y="-5.08" rot="R180"/>
 <instance part="C4" gate="G$1" x="48.26" y="-25.4" rot="R180"/>
 <instance part="C7" gate="G$1" x="78.74" y="-27.94" rot="R180"/>
 <instance part="C3" gate="G$1" x="40.64" y="-22.86"/>
 <instance part="C6" gate="G$1" x="83.82" y="-22.86"/>
-<instance part="R19" gate="G$1" x="73.66" y="25.4" rot="R90"/>
-<instance part="LED3" gate="G$1" x="73.66" y="15.24"/>
+<instance part="R19" gate="G$1" x="73.66" y="10.16" rot="R90"/>
+<instance part="LED3" gate="G$1" x="73.66" y="22.86"/>
+<instance part="U$1" gate="G$1" x="-2.54" y="-12.7" rot="MR180"/>
 </instances>
 <busses>
 </busses>
@@ -15494,19 +15488,19 @@ SOIC-4:
 <label x="30.48" y="25.4" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="LED1" gate="G$1" pin="C"/>
-<wire x1="50.8" y1="10.16" x2="50.8" y2="2.54" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="2.54" x2="50.8" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="LED2" gate="G$1" pin="C"/>
-<wire x1="50.8" y1="2.54" x2="60.96" y2="2.54" width="0.1524" layer="91"/>
-<wire x1="60.96" y1="10.16" x2="60.96" y2="2.54" width="0.1524" layer="91"/>
-<junction x="60.96" y="2.54"/>
-<junction x="50.8" y="2.54"/>
 <label x="43.18" y="2.54" size="1.778" layer="95"/>
+<wire x1="48.26" y1="2.54" x2="50.8" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="R17" gate="G$1" pin="1"/>
+<wire x1="50.8" y1="2.54" x2="60.96" y2="2.54" width="0.1524" layer="91"/>
 <wire x1="60.96" y1="2.54" x2="73.66" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="LED3" gate="G$1" pin="C"/>
 <wire x1="73.66" y1="2.54" x2="78.74" y2="2.54" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="10.16" x2="73.66" y2="2.54" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="5.08" x2="50.8" y2="2.54" width="0.1524" layer="91"/>
+<junction x="50.8" y="2.54"/>
+<pinref part="R18" gate="G$1" pin="1"/>
+<wire x1="60.96" y1="5.08" x2="60.96" y2="2.54" width="0.1524" layer="91"/>
+<junction x="60.96" y="2.54"/>
+<pinref part="R19" gate="G$1" pin="1"/>
+<wire x1="73.66" y1="5.08" x2="73.66" y2="2.54" width="0.1524" layer="91"/>
 <junction x="73.66" y="2.54"/>
 </segment>
 <segment>
@@ -15701,9 +15695,9 @@ SOIC-4:
 <label x="93.98" y="-15.24" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="R19" gate="G$1" pin="2"/>
-<wire x1="73.66" y1="30.48" x2="73.66" y2="33.02" width="0.1524" layer="91"/>
 <label x="71.12" y="33.02" size="1.778" layer="95"/>
+<pinref part="LED3" gate="G$1" pin="A"/>
+<wire x1="73.66" y1="25.4" x2="73.66" y2="33.02" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$13" class="0">
@@ -15878,9 +15872,9 @@ SOIC-4:
 <label x="43.18" y="58.42" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="R17" gate="G$1" pin="2"/>
-<wire x1="50.8" y1="30.48" x2="50.8" y2="33.02" width="0.1524" layer="91"/>
 <label x="45.72" y="33.02" size="1.778" layer="95"/>
+<wire x1="50.8" y1="25.4" x2="50.8" y2="33.02" width="0.1524" layer="91"/>
+<pinref part="LED1" gate="G$1" pin="A"/>
 </segment>
 </net>
 <net name="LED2" class="0">
@@ -15890,23 +15884,9 @@ SOIC-4:
 <label x="91.44" y="53.34" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="R18" gate="G$1" pin="2"/>
-<wire x1="60.96" y1="30.48" x2="60.96" y2="33.02" width="0.1524" layer="91"/>
 <label x="60.96" y="33.02" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="N$31" class="0">
-<segment>
-<pinref part="R17" gate="G$1" pin="1"/>
-<pinref part="LED1" gate="G$1" pin="A"/>
-<wire x1="50.8" y1="20.32" x2="50.8" y2="17.78" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$33" class="0">
-<segment>
-<pinref part="R18" gate="G$1" pin="1"/>
+<wire x1="60.96" y1="25.4" x2="60.96" y2="33.02" width="0.1524" layer="91"/>
 <pinref part="LED2" gate="G$1" pin="A"/>
-<wire x1="60.96" y1="20.32" x2="60.96" y2="17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$32" class="0">
@@ -15926,25 +15906,43 @@ SOIC-4:
 </net>
 <net name="N$36" class="0">
 <segment>
-<pinref part="JP1" gate="G$1" pin="1"/>
 <pinref part="IC5" gate="G$1" pin="AC2"/>
-<wire x1="10.16" y1="-25.4" x2="27.94" y2="-25.4" width="0.1524" layer="91"/>
+<wire x1="12.7" y1="-25.4" x2="27.94" y2="-25.4" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="-25.4" x2="27.94" y2="-20.32" width="0.1524" layer="91"/>
+<wire x1="12.7" y1="-17.78" x2="12.7" y2="-25.4" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="PIN"/>
+<wire x1="10.16" y1="-17.78" x2="12.7" y2="-17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$37" class="0">
 <segment>
-<pinref part="JP2" gate="G$1" pin="1"/>
 <pinref part="IC5" gate="G$1" pin="AC1"/>
-<wire x1="10.16" y1="-5.08" x2="27.94" y2="-5.08" width="0.1524" layer="91"/>
+<wire x1="12.7" y1="-5.08" x2="27.94" y2="-5.08" width="0.1524" layer="91"/>
 <wire x1="27.94" y1="-5.08" x2="27.94" y2="-10.16" width="0.1524" layer="91"/>
+<wire x1="12.7" y1="-12.7" x2="12.7" y2="-5.08" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="BARREL"/>
+<wire x1="10.16" y1="-12.7" x2="12.7" y2="-12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$28" class="0">
 <segment>
-<pinref part="R19" gate="G$1" pin="1"/>
-<pinref part="LED3" gate="G$1" pin="A"/>
-<wire x1="73.66" y1="20.32" x2="73.66" y2="17.78" width="0.1524" layer="91"/>
+<pinref part="R19" gate="G$1" pin="2"/>
+<pinref part="LED3" gate="G$1" pin="C"/>
+<wire x1="73.66" y1="15.24" x2="73.66" y2="17.78" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$31" class="0">
+<segment>
+<pinref part="R18" gate="G$1" pin="2"/>
+<pinref part="LED2" gate="G$1" pin="C"/>
+<wire x1="60.96" y1="15.24" x2="60.96" y2="17.78" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$33" class="0">
+<segment>
+<pinref part="R17" gate="G$1" pin="2"/>
+<pinref part="LED1" gate="G$1" pin="C"/>
+<wire x1="50.8" y1="15.24" x2="50.8" y2="17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
@@ -15980,19 +15978,17 @@ SOIC-4:
 <approved hash="113,1,69.85,72.7913,C1,,,,,"/>
 <approved hash="113,1,32.0252,38.1,R4,,,,,"/>
 <approved hash="113,1,25.4,48.6495,S1,,,,,"/>
-<approved hash="113,1,51.1217,13.97,LED1,,,,,"/>
-<approved hash="113,1,49.8052,25.4,R17,,,,,"/>
-<approved hash="113,1,61.2817,13.97,LED2,,,,,"/>
-<approved hash="113,1,59.9652,25.4,R18,,,,,"/>
+<approved hash="113,1,51.1217,21.59,LED1,,,,,"/>
+<approved hash="113,1,49.8052,10.16,R17,,,,,"/>
+<approved hash="113,1,61.2817,21.59,LED2,,,,,"/>
+<approved hash="113,1,59.9652,10.16,R18,,,,,"/>
 <approved hash="113,1,27.94,-15.24,IC5,,,,,"/>
-<approved hash="113,1,9.92293,-26.8012,JP1,,,,,"/>
-<approved hash="113,1,9.92293,-6.48123,JP2,,,,,"/>
 <approved hash="113,1,46.5887,-24.13,C4,,,,,"/>
 <approved hash="113,1,77.0687,-26.67,C7,,,,,"/>
 <approved hash="113,1,41.998,-24.13,C3,,,,,"/>
 <approved hash="113,1,85.178,-24.13,C6,,,,,"/>
-<approved hash="113,1,72.6652,25.4,R19,,,,,"/>
-<approved hash="113,1,73.9817,13.97,LED3,,,,,"/>
+<approved hash="113,1,72.6652,10.16,R19,,,,,"/>
+<approved hash="113,1,73.9817,21.59,LED3,,,,,"/>
 </errors>
 </schematic>
 </drawing>
