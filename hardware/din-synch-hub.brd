@@ -142,7 +142,7 @@
 <wire x1="0.127" y1="19.05" x2="1.397" y2="20.32" width="0.4064" layer="20" curve="-90"/>
 <wire x1="139.192" y1="20.32" x2="140.843" y2="18.796" width="0.4064" layer="20" curve="-90"/>
 <wire x1="140.843" y1="18.796" x2="140.843" y2="1.27" width="0.4064" layer="20"/>
-<text x="54.6735" y="13.43025" size="1.778" layer="21" font="vector">rev 3</text>
+<text x="53.81625" y="12.7635" size="1.778" layer="21" font="vector">rev 3</text>
 <text x="111.887" y="17.399" size="1.778" layer="21" font="vector">hotchk155</text>
 <text x="32.54375" y="15.24" size="3.81" layer="21" font="vector">Sync Hole</text>
 </plain>
