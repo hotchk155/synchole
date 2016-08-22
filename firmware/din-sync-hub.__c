@@ -3,7 +3,7 @@ Active Directory=D:\GitHub\din-synch-hub\firmware\
 Target=PIC12F1822
 Active Compiler=BoostC
 Active Config=Release
-Config=1
+Config=0
 Profiling=0
 Snapshot=0
 [Files]

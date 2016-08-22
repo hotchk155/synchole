@@ -1,22 +1,35 @@
 ////////////////////////////////////////////////////////////
 //
-// SYNCHOLE DIN SYNCH24 HUB
+//      /////                          //              //
+//     //                             //              //   
+//    //     //   //  /////    ///// //////   /////  //    ////
+//    ////  //   //  //   // //     //   // //   // //   //   //
+//      // //   //  //   // //     //   // //   // //   //////
+//     // //   //  //   // //     //   // //   // //   // 
+// /////  //////  //   //  ///// //   //  /////   ///  //////
+//           //
+//          //  MIDI TO DIN SYNCH24 HUB
+//     /////    hotchk155/2016 - Sixty-four pixels ltd.
+//              Code for PIC12F1822 - Compiled with SourceBoost C
 //
-// Code for PIC12F1822
+// This work is licensed under the Creative Commons license
+// Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+// To view a copy of this license, please visit:
+// https://creativecommons.org/licenses/by-nc/4.0/
 //
-// Compiled with SourceBoost C
-//
-// hotchk155/2015
+// Full repository with hardware information:
+// https://github.com/hotchk155/din-synch-hub
 //
 // Firmware version 
 // 1 19Nov15 Initial Version
 // 2 12Dec15 New PCB - output pins switched
+// 3 14Aug16 Initial release version - switch added
 //
 ////////////////////////////////////////////////////////////
 #include <system.h>
 #include <memory.h>
 
-#define FIRMWARE_VERSION 2
+#define FIRMWARE_VERSION 3
 
 // configuration words: 16MHz internal oscillator block, reset disabled
 #pragma DATA _CONFIG1, _FOSC_INTOSC & _WDTE_OFF & _MCLRE_OFF & _CLKOUTEN_OFF
@@ -31,18 +44,22 @@ typedef unsigned char byte;
 #define P_LED2		lata.2
 #define P_RUN		lata.1
 #define P_CLK		lata.0
+#define P_SWITCH	porta.3
 
 // Timer settings
 volatile byte timerTicked = 0;		// Timer ticked flag (tick once per ms)
 #define TIMER_0_INIT_SCALAR		5	// Timer 0 is an 8 bit timer counting at 250kHz
-#define MIDILED_HIGH_TIME 		5 // milliseconds
-#define BEATLED_HIGH_TIME 		10 // milliseconds
+#define MIDILED_HIGH_TIME 		1 // milliseconds
+#define BEATLED_HIGH_TIME 		30 // milliseconds
 
 // The pulse width is supposed to be at 50% duty cycle (i.e. half the 
 // clock pulse period. However if we don't have a previous MIDI clock
 // tick we don't know the period, so we'll use a default pulse width
 // of 5 milliseconds
 #define DEFAULT_CLOCK_LENGTH_USECS 5000
+
+// Switch debounce time
+#define SWITCH_DEBOUNCE_MS	50
 
 volatile byte bRunning = 0;				// clock running flag
 volatile byte bBeatCount = 0;			// beat count (used to flash beat LED)	
@@ -254,6 +271,7 @@ void main()
 	// initialise USART
 	init_usart();
 
+	int debounce = 0;
 	// loop forever		
 	for(;;)
 	{
@@ -273,6 +291,33 @@ void main()
 				--bMidiLEDCount;
 			if(bBeatLEDCount)
 				--bBeatLEDCount;
+			
+			// is the switch pressed?	
+			if(debounce >= 0) {
+				if(debounce > 0) {				
+					// we are debouncing the switch
+					--debounce;
+				}
+				else if(P_SWITCH) {
+					// debounce period is over - just waiting for
+					// the switch to be released
+					debounce = -1;
+				}
+			}
+			else if(!P_SWITCH) {			
+				// new switch press
+				if(bRunning) {
+					P_RUN = 0;					
+					bRunning = 0;
+				}
+				else {
+					P_RUN = 1;					
+					bRunning = 1;
+					bBeatCount = 0;
+					bBeatLEDCount = BEATLED_HIGH_TIME;
+				}
+				debounce = SWITCH_DEBOUNCE_MS;				
+			}
 		}
 	}
 }
