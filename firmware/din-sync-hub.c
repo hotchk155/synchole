@@ -213,18 +213,14 @@ void main()
 { 
 	// osc control / 16MHz / internal
 	osccon = 0b01111010;
+
+	apfcon.7=1; // RX on RA5
+	apfcon.2=1;	// TX on RA4
 		
 	// configure io
 	trisa = 0b00100000;              	
 	ansela = 0b00000000;
 	porta=0;
-
-	apfcon.7=1; // RX on RA5
-	apfcon.2=1;	// TX on RA4
-
-	// enable serial receive interrupt
-	intcon.7 = 1; //global interrupt enable
-	intcon.6 = 1; // peripheral interrupt enable
 	
 	// Configure timer 0 (controls systemticks)
 	// 	timer 0 runs at 4MHz
@@ -252,7 +248,7 @@ void main()
 	tmr1h = 0;
 	pir1.0 = 0;  // clear timer interrupt flag
 	pie1.0 = 1;  // Enable timer overflow interrupt
-	t1con.0 = 1; // Timer1 starts disabled
+	t1con.0 = 1; // Timer1 starts enabled
 
 	// Configure Compare module 1 to interrupt
 	// on a match between tmr1h:tmr1l and ccpr1h:ccpr1l
@@ -261,15 +257,19 @@ void main()
 	ccp1con.1 = 1; //	} from capture/compare module 1
 	ccp1con.0 = 0; //	} when timer1 matches CCPR1H:CCPR1L
 	pie1.2 = 1;    // enable interrupt 
-			
-	// Flash MIDI activity LED on startup
-	P_LED1=1; delay_ms(200);
-	P_LED1=0; delay_ms(200);
-	P_LED1=1; delay_ms(200);
-	P_LED1=0; 
 
+	// enable interrupts
+	intcon.7 = 1; //global interrupt enable
+	intcon.6 = 1; // peripheral interrupt enable
+			
 	// initialise USART
 	init_usart();
+
+	// Flash MIDI activity LED on startup
+	P_LED1=1; P_LED2=1; delay_ms(255);
+	P_LED1=0; P_LED2=0; delay_ms(255);
+	P_LED1=1; P_LED2=1; delay_ms(255);
+	P_LED1=0; P_LED2=0; 
 
 	int debounce = 0;
 	// loop forever		
