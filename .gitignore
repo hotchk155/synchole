@@ -66,3 +66,4 @@ Desktop.ini
 *.tree
 makefile.*
 MIDI-Hub.hex
+firmware/Release/HexToSyx.exe
