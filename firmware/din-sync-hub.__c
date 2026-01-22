@@ -1,5 +1,5 @@
 [Settings]
-Active Directory=D:\GitHub\din-synch-hub\firmware\
+Active Directory=C:\GitHub\synchole\firmware\
 Target=PIC12F1822
 Active Compiler=BoostC
 Active Config=Release
